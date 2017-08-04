@@ -1,0 +1,71 @@
+CREATE TABLE `courses` (
+  `id` int(6) NOT NULL AUTO_INCREMENT,
+  `name` varchar(40) NOT NULL,
+  `comments` varchar(500) NOT NULL,
+  `coursefee` decimal(8, 2) NOT NULL,
+  `totalclasses` int(6) NOT NULL,
+  `startdate` date default NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
+
+ALTER TABLE `courses` ADD COLUMN startdate date default NULL;
+======================================================
+/*All User's gets stored in APP_USER table*/
+create table APP_USER (
+   id BIGINT NOT NULL AUTO_INCREMENT,
+   sso_id VARCHAR(30) NOT NULL,
+   password VARCHAR(100) NOT NULL,
+   first_name VARCHAR(30) NOT NULL,
+   last_name  VARCHAR(30) NOT NULL,
+   email VARCHAR(30) NOT NULL,
+   state VARCHAR(30) NOT NULL,
+   PRIMARY KEY (id),
+   UNIQUE (sso_id)
+);
+
+/* USER_PROFILE table contains all possible roles */
+create table USER_PROFILE(
+   id BIGINT NOT NULL AUTO_INCREMENT,
+   type VARCHAR(30) NOT NULL,
+   PRIMARY KEY (id),
+   UNIQUE (type)
+);
+
+/* JOIN TABLE for MANY-TO-MANY relationship*/
+CREATE TABLE APP_USER_USER_PROFILE (
+    user_id BIGINT NOT NULL,
+    user_profile_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, user_profile_id),
+    CONSTRAINT FK_APP_USER FOREIGN KEY (user_id) REFERENCES APP_USER (id),
+    CONSTRAINT FK_USER_PROFILE FOREIGN KEY (user_profile_id) REFERENCES USER_PROFILE (id)
+);
+
+/* Populate USER_PROFILE Table */
+INSERT INTO USER_PROFILE(type)
+VALUES ('USER');
+
+INSERT INTO USER_PROFILE(type)
+VALUES ('ADMIN');
+
+INSERT INTO USER_PROFILE(type)
+VALUES ('DBA');
+
+INSERT INTO USER_PROFILE(type)
+VALUES ('STUDENT');
+
+
+/* Populate one Admin User which will further create other users for the application using GUI## admin-admin */
+INSERT INTO APP_USER(sso_id, password, first_name, last_name, email, state)
+VALUES ('admin','$2a$10$euF6edQCoI02QUtP8QmeJejQfRHq5pU/4YyI/LX1C/InOSgv.x6HK', 'First','Last','email@test.com', 'Active');
+
+
+/* Populate JOIN Table */
+INSERT INTO APP_USER_USER_PROFILE (user_id, user_profile_id)
+  SELECT user.id, profile.id FROM APP_USER user, USER_PROFILE profile
+  where user.sso_id='admin' and profile.type='ADMIN';
+
+
+
+
+  
